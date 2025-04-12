@@ -22,6 +22,8 @@ export const useAuthStore = defineStore('auth', {
         this.refreshToken = refresh_token;
         this.user = user;
 
+        $api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
         return response.data;
       } catch (error) {
         console.error('Login failed:', error);

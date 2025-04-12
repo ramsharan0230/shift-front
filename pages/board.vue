@@ -1,5 +1,11 @@
 <script setup lang="ts">
 import draggable from "vuedraggable";
+import CreateTask from "~/components/CreateTask.vue";
+const showModal = ref(false);
+
+const toggleModal = () => {
+  showModal.value = !showModal.value;
+};
 
 const { $api } = useNuxtApp();
 
@@ -43,11 +49,6 @@ const fetchAllTasks = async () => {
     qa.value = tasks.filter(task => task.status === TaskStatus.QA);
     done.value = tasks.filter(task => task.status === TaskStatus.DONE);
 
-    console.log("Todo tasks: ", todo.value);
-    console.log("In Progress tasks: ", inProgress.value);
-    console.log("QA tasks: ", qa.value);
-    console.log("Done tasks: ", done.value);
-
   } catch (error) {
     console.error("Fetch error:", error);
   }
@@ -86,9 +87,12 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container">
+  <div class="container-fluid">
+    <div class="" style="margin-bottom: 20px;">
+      <CreateTask></CreateTask>
+    </div>
+    
     <div class="row">
-      <!-- Todo Column -->
       <div class="column-wrapper">
         <div class="column p-3">
           <h5>Todo</h5>
@@ -110,7 +114,6 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- In Progress Column -->
       <div class="column-wrapper">
         <div class="column p-3">
           <h5>In Progress</h5>
@@ -132,7 +135,6 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- QA Column -->
       <div class="column-wrapper">
         <div class="column p-3">
           <h5>QA</h5>
@@ -154,7 +156,6 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- Done Column -->
       <div class="column-wrapper">
         <div class="column p-3">
           <h5>Done</h5>

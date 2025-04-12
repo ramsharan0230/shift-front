@@ -21,7 +21,7 @@ const handleLogin = async (e: Event) => {
 
   try {
     const response = await authStore.login(email.value, password.value);
-
+    
     successMessage.value = response.message;
     navigateTo("/board"); 
     clearMessages();
