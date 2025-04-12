@@ -8,8 +8,9 @@ const title = ref("");
 const status = ref("");
 const description = ref("");
 
+const emit = defineEmits(['task-created']);
+
 const handleCreateTask = async (e: Event) => {
-    alert("taks....")
     e.preventDefault();
     isLoading.value = true;
     const authToken = authStore.token;
@@ -23,8 +24,9 @@ const handleCreateTask = async (e: Event) => {
                 'Authorization': `Bearer ${authToken}` 
             }
         });
-        
+
         console.log("res: ", response);
+        emit('task-created', response.data);
         successMessage.value = response.message;
         clearMessages();
     } catch (error) {
