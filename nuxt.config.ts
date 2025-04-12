@@ -7,6 +7,9 @@ export default defineNuxtConfig({
   css: [
     'flowbite/dist/flowbite.min.css',
   ],
+  modules: [
+    '@pinia/nuxt',
+  ],
   head: {
     link: [
       {
@@ -27,6 +30,9 @@ export default defineNuxtConfig({
       baseURL: 'http://localhost:8000/api',
     },
   },
+  plugins: [
+    { src: '~/plugins/pinia-plugin-persistedstate.client.ts', mode: 'client' },
+  ],
   vite: {
     plugins: [
       tailwindcss(),
