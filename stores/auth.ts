@@ -3,8 +3,8 @@ import { defineStore } from 'pinia';
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null as User | null,
-    token: process.client ? localStorage.getItem('access_token') : '',
-    refreshToken: process.client ? localStorage.getItem('refresh_token') : '',
+    token: '',
+    refreshToken: '',
   }),
   actions: {
     async login(email: string, password: string) {
@@ -45,4 +45,5 @@ export const useAuthStore = defineStore('auth', {
       return !!state.token;
     },
   },
+  persist: true,
 });

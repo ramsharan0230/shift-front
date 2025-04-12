@@ -34,9 +34,10 @@ const handleLogin = async (e: Event) => {
 };
 
 onMounted(() => {
-  if (authStore.isAuthenticated) {
-    navigateTo('/board');
-  }
+  
+});
+definePageMeta({
+  middleware: 'guest',
 });
 </script>
 
