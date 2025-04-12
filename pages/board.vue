@@ -75,13 +75,18 @@ const updateTaskStatus = async (task, status) => {
   }
 }
 
+definePageMeta({
+  middleware: 'auth',
+  layout: 'default',
+});
+
 onMounted(async () => {
   await fetchAllTasks();
 });
 </script>
 
 <template>
-  <div class="container-fluid">
+  <div class="container">
     <div class="row">
       <!-- Todo Column -->
       <div class="column-wrapper">
