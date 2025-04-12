@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia';
+import { defineStore } from "pinia";
 
 interface User {
   id: number;
@@ -6,18 +6,18 @@ interface User {
   email: string;
 }
 
-export const useAuthStore = defineStore('auth', {
+export const useAuthStore = defineStore("auth", {
   state: () => ({
     user: null as User | null,
-    token: '',
-    refreshToken: '',
+    token: "",
+    refreshToken: "",
     expiresIn: 0,
   }),
   actions: {
     async login(email: string, password: string) {
       try {
         const { $api } = useNuxtApp();
-        const response = await $api.post('/auth/login', { email, password });
+        const response = await $api.post("/auth/login", { email, password });
         const { user, token, refresh_token, expires_in } = response.data;
 
         this.token = token;
@@ -26,25 +26,42 @@ export const useAuthStore = defineStore('auth', {
         this.expiresIn = Date.now() + expires_in * 1000;
 
         return response.data;
-
-      } catch (error) {
-        console.error('Login failed:', error);
-        throw error;
+      } catch (error: any) {
+        const message = error.response?.data?.message || "Login failed";
+        throw new Error(message);
       }
     },
 
-    async logout($api: any) {
+    async logout() {
+      const { $api } = useNuxtApp();
+      try {
+        await $api.post("/auth/logout");
+      } catch (error: any) {
+        const message = "Logout failed"
+        throw new Error(message);
+      }finally{
+        this.$reset();
+        localStorage.removeItem("auth");
+        delete $api.defaults.headers.common["Authorization"];
+        navigateTo("/auth/login");
+      }
+
       this.$reset();
       localStorage.clear();
-      delete $api.defaults.headers.common['Authorization'];
-      },
+      delete $api.defaults.headers.common["Authorization"];
+      navigateTo("/auth/login");
     },
+  },
   getters: {
     isAuthenticated: (state) => {
       return !!state.token;
     },
+    getToken: (state) => {
+      return state.token;
+    },
   },
   persist: {
-    paths: ['user', 'token', 'refreshToken', 'expiresIn']
+    key: "auth",
+    paths: ["user", "token", "refreshToken", "expiresIn"],
   },
 });

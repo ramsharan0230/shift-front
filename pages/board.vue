@@ -76,6 +76,25 @@ const updateTaskStatus = async (task, status) => {
   }
 }
 
+const handleTaskCreated = (newTask: Task) => {
+  switch (newTask.status) {
+    case TaskStatus.TODO:
+      todo.value.push(newTask);
+      break;
+    case TaskStatus.IN_PROGRESS:
+      inProgress.value.push(newTask);
+      break;
+    case TaskStatus.QA:
+      qa.value.push(newTask);
+      break;
+    case TaskStatus.DONE:
+      done.value.push(newTask);
+      break;
+    default:
+      console.warn('Unknown status:', newTask.status);
+  }
+};
+
 definePageMeta({
   middleware: 'auth',
   layout: 'default',
@@ -89,9 +108,9 @@ onMounted(async () => {
 <template>
   <div class="container-fluid">
     <div class="" style="margin-bottom: 20px;">
-      <CreateTask></CreateTask>
+      <CreateTask @task-created="handleTaskCreated"></CreateTask>
     </div>
-    
+
     <div class="row">
       <div class="column-wrapper">
         <div class="column p-3">

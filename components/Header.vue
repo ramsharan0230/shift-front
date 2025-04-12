@@ -2,10 +2,14 @@
 <script setup lang="ts">
 const authStore = useAuthStore();
 
-const logout = () => {
-  alert("logout...")
-  authStore.logout();
-  navigateTo('/auth/login')
+const logout = async () => {
+  try {
+    await authStore.logout();
+    navigateTo('/auth/login')
+  } catch (error) {
+    console.error("Logout failed:", error);
+  }
+  
 };
 </script>
 
