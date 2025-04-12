@@ -75,6 +75,10 @@ const updateTaskStatus = async (task, status) => {
   }
 }
 
+definePageMeta({
+  middleware: 'auth',
+});
+
 onMounted(async () => {
   await fetchAllTasks();
 });

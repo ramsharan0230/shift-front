@@ -8,7 +8,7 @@ export default defineNuxtConfig({
     'flowbite/dist/flowbite.min.css',
   ],
   modules: [
-    '@pinia/nuxt',
+    '@pinia/nuxt'
   ],
   head: {
     link: [

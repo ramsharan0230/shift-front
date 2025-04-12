@@ -1,3 +1,12 @@
+
+<script setup lang="ts">
+const authStore = useAuthStore();
+
+const logout = () => {
+  authStore.logout();
+};
+</script>
+
 <template>
   <nav class="bg-white dark:bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
     <div
@@ -11,7 +20,7 @@
         />
         <span
           class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"
-          >Flowbite</span
+          >ShiftBoard</span
         >
       </a>
       <button
@@ -51,12 +60,12 @@
             >
           </li>
           <li>
-            <nuxt-link to="/auth/login"
+            <nuxt-link to="/auth/login" v-if="!authStore.isAuthenticated"
             class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
             >Login</nuxt-link>
           </li>
           <li>
-            <nuxt-link to="/auth/register"
+            <nuxt-link to="/auth/register" v-if="!authStore.isAuthenticated"
             class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
             >Register</nuxt-link>
           </li>
@@ -64,7 +73,7 @@
             <a
               href="#"
               class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
-              >Contact</a
+              >Logout</a
             >
           </li>
         </ul>
