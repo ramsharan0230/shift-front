@@ -1,85 +1,135 @@
 <script lang="ts" setup>
-const email = ref("");
-const password = ref("");
+const { $api } = useNuxtApp();
+const email = ref('rahul@manandhar.com');
+const password = ref('password01');
+const errorMessage = ref('');
+const successMessage = ref('');
 
-interface LoginInterface{
-  email: string,
-  password: string,
+const isLoading = ref(false);
+
+interface ApiResponse {
+    success: boolean;
+    data?: User;
+    message?: string;
 }
 
-const handleLogin = async() => {
-  try {
-    const response = await $api.post('/auth/login', {
-
-    });
-  } catch (error) {
-    console.error("Fetch error:", error);
-  }
+const clearMessages = () => {
+    setTimeout(() => {
+        successMessage.value="";
+        errorMessage.value="";
+    }, 5000);
 }
+
+const handleLogin = async(e: Event) => {
+    e.preventDefault();
+    isLoading.value = true;
+    try {
+        const response = await $api.post<ApiResponse>('/auth/login', {
+            email: email.value,
+            password: password.value
+        });
+
+        console.log('mess: ', response);
+        successMessage.value = response.message;
+        if(response.data){
+          const { user, token, expires_in } = response.data;
+            const expiryTime = Date.now() + (expires_in * 1000);
+            
+            localStorage.setItem('access_token', token);
+            localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('token_expiry', expiryTime.toString());
+
+            $api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            
+            successMessage.value = response.data.message;
+            navigateTo('/board');
+        }
+        clearMessages();
+    } catch (error) {
+      console.log("error: ", error)
+        isLoading.value = false;
+        const errors = error.response?.data?.data;
+        if(errors){
+            errorMessage.value = Object.values(errors).flat().join(', ');
+        } else {
+            errorMessage.value = 'Something went wrong. Please try again.';
+        }
+        clearMessages();
+
+    } finally {
+        isLoading.value = false;
+    }
+}
+
+
 </script>
 
 <template>
-  <div
-    class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700"
-  >
-    <form class="space-y-6" action="#">
-      <h5 class="text-xl font-medium text-gray-900 dark:text-white">
-        Sign in to Shift
-      </h5>
-      <div>
-        <label
-          for="email"
-          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label
-        >
-        <input
-          type="email"
-          name="email"
-          id="email"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-          placeholder="name@company.com"
-          required
-        />
-      </div>
-      <div>
-        <label
-          for="password"
-          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >Password</label
-        >
-        <input
-          type="password"
-          name="password"
-          id="password"
-          placeholder="••••••••"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-          required
-        />
-      </div>
-      <div class="flex items-start">
-        <div class="flex items-start">
-          <div class="flex items-center h-5">
-            <input
-              id="remember"
-              type="checkbox"
-              value=""
-              class="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800"
-              required
-            />
-          </div>
+    <div
+      class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700"
+    >
+      <form @submit.prevent="handleLogin">
+        <h5 class="text-xl font-medium text-gray-900 dark:text-white mb-3 text-center">
+          Sign in to Shift
+        </h5>
+
+        <div v-if="errorMessage" class="text-red-500 text-sm mb-4">
+          {{ errorMessage }}
         </div>
-      </div>
-      <button
-        type="submit"
-        class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-      >
-        Login to your account
-      </button>
-      <div class="text-sm font-medium text-gray-500 dark:text-gray-300">
-        Not registered?
-        <a href="#" class="text-blue-700 hover:underline dark:text-blue-500"
-          >Create account</a
+
+        <div v-if="successMessage" class="text-green-500 text-sm mb-4">
+          {{ successMessage }}
+        </div>
+        
+        <div v-if="isLoading" class="text-center mb-4">
+          Login...
+        </div>
+
+        <div class="mb-1">
+          <label
+            for="email"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >Email</label
+          >
+          <input
+            type="email"
+            name="email"
+            id="email"
+            v-model="email"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+            placeholder="Enter email address..."
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label
+            for="password"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >Password</label
+          >
+          <input
+            type="password"
+            name="password"
+            id="password"
+            v-model="password"
+            placeholder="••••••••"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+            required
+          />
+        </div>
+        
+        <button
+          type="submit"
+          :disabled="isLoading"
+          class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
-      </div>
-    </form>
-  </div>
-</template>
+          Submit
+        </button>
+        <div class="text-sm font-medium text-gray-500 dark:text-gray-300">
+          Have already an account?
+          <nuxt-link to="/auth/register" class="text-blue-700 hover:underline dark:text-blue-500">Register</nuxt-link>
+        </div>
+      </form>
+    </div>
+  </template>
+  
