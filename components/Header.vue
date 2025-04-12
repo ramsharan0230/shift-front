@@ -3,7 +3,9 @@
 const authStore = useAuthStore();
 
 const logout = () => {
+  alert("logout...")
   authStore.logout();
+  navigateTo('/auth/login')
 };
 </script>
 
@@ -52,12 +54,19 @@ const logout = () => {
           class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700"
         >
           <li>
-            <a
-              href="#"
+            <nuxt-link
+              to="/"
               class="block py-2 px-3 text-white bg-blue-700 rounded-sm md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500 dark:bg-blue-600 md:dark:bg-transparent"
               aria-current="page"
-              >Home</a
-            >
+              >Home</nuxt-link>
+          </li>
+          <li>
+            <nuxt-link
+              to="/board"
+              v-if="authStore.isAuthenticated"
+              class="block py-2 px-3 text-white bg-blue-700 rounded-sm md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500 dark:bg-blue-600 md:dark:bg-transparent"
+              aria-current="page"
+              >Board</nuxt-link>
           </li>
           <li>
             <nuxt-link to="/auth/login" v-if="!authStore.isAuthenticated"
@@ -70,11 +79,13 @@ const logout = () => {
             >Register</nuxt-link>
           </li>
           <li>
-            <a
-              href="#"
+            <button
+              v-if="authStore.isAuthenticated"
+              @click="logout"
               class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
-              >Logout</a
             >
+              Logout
+            </button>
           </li>
         </ul>
       </div>

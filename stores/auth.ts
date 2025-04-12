@@ -1,10 +1,17 @@
 import { defineStore } from 'pinia';
 
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null as User | null,
     token: '',
     refreshToken: '',
+    expiresIn: 0,
   }),
   actions: {
     async login(email: string, password: string) {
@@ -12,17 +19,14 @@ export const useAuthStore = defineStore('auth', {
         const { $api } = useNuxtApp();
         const response = await $api.post('/auth/login', { email, password });
         const { user, token, refresh_token, expires_in } = response.data;
-        const expiryTime = Date.now() + expires_in * 1000;
-
-        localStorage.setItem('access_token', token);
-        localStorage.setItem('user', JSON.stringify(user));
-        localStorage.setItem('token_expiry', expiryTime.toString());
 
         this.token = token;
         this.refreshToken = refresh_token;
         this.user = user;
+        this.expiresIn = Date.now() + expires_in * 1000;
 
         return response.data;
+
       } catch (error) {
         console.error('Login failed:', error);
         throw error;
@@ -30,14 +34,9 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout($api: any) {
-        this.user = null;
-        this.token = '';
-        this.refreshToken = '';
-
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('user');
-        localStorage.removeItem('token_expiry');
-        $api.defaults.headers.common['Authorization'] = '';
+      this.$reset();
+      localStorage.clear();
+      delete $api.defaults.headers.common['Authorization'];
       },
     },
   getters: {
@@ -45,5 +44,7 @@ export const useAuthStore = defineStore('auth', {
       return !!state.token;
     },
   },
-  persist: true,
+  persist: {
+    paths: ['user', 'token', 'refreshToken', 'expiresIn']
+  },
 });
