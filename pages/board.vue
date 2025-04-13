@@ -2,19 +2,21 @@
 import draggable from "vuedraggable";
 import CreateTask from "~/components/CreateTask.vue";
 const showModal = ref(false);
+const selectedTask = ref<Task | null>(null);
 
-const toggleModal = () => {
-  showModal.value = !showModal.value;
+const openCreateTaskModal = () => {
+  selectedTask.value = null;
+  showModal.value = true;
 };
 
 const { $api } = useNuxtApp();
 
 enum TaskStatus {
-    TODO = "todo",
-    IN_PROGRESS = "inprogress",
-    QA = "qa",
-    DONE = "done",
-  }
+  TODO = "todo",
+  IN_PROGRESS = "inprogress",
+  QA = "qa",
+  DONE = "done",
+}
 
 interface Task {
   id: number;
@@ -36,16 +38,13 @@ const inProgress = ref<Task[]>([]);
 const qa = ref<Task[]>([]);
 const done = ref<Task[]>([]);
 
-
 const fetchAllTasks = async () => {
   try {
     const response = await $api.get('/tasks');
-    console.log("tasks: ", response.data);
     const tasks: Task[] = response.data;
 
     todo.value = tasks.filter(task => task.status === TaskStatus.TODO);
     inProgress.value = tasks.filter(task => task.status === TaskStatus.IN_PROGRESS);
-    console.log(inProgress.value)
     qa.value = tasks.filter(task => task.status === TaskStatus.QA);
     done.value = tasks.filter(task => task.status === TaskStatus.DONE);
 
@@ -55,26 +54,21 @@ const fetchAllTasks = async () => {
 };
 
 const onTaskDrop = (event: any, newStatus: TaskStatus) => {
-  if (event.added && event.added.element) {
+  if (event.added?.element) {
     const task: Task = event.added.element;
     updateTaskStatus(task, newStatus);
   }
 };
 
-const updateTaskStatus = async (task, status) => {
-  console.log("tss: ", task)
-  console.log("tskSt: ", status)
-
+const updateTaskStatus = async (task: Task, status: TaskStatus) => {
   try {
-    const response = await $api.patch(`/tasks/${task.id}`, {
-      status: status?.toUpperCase()
+    await $api.patch(`/tasks/${task.id}`, {
+      status: status.toUpperCase()
     });
-    console.log("resss: ", response);
-
   } catch (error) {
-    console.error("Fetch error:", error);
+    console.error("Update error:", error);
   }
-}
+};
 
 const handleTaskCreated = (newTask: Task) => {
   switch (newTask.status) {
@@ -90,9 +84,31 @@ const handleTaskCreated = (newTask: Task) => {
     case TaskStatus.DONE:
       done.value.push(newTask);
       break;
-    default:
-      console.warn('Unknown status:', newTask.status);
   }
+};
+
+const deleteTask = async (task: Task) => {
+  if (confirm(`Are you sure you want to delete task "${task.title}"?`)) {
+    try {
+      await $api.delete(`/tasks/${task.id}`);
+
+      const list = {
+        [TaskStatus.TODO]: todo,
+        [TaskStatus.IN_PROGRESS]: inProgress,
+        [TaskStatus.QA]: qa,
+        [TaskStatus.DONE]: done,
+      }[task.status];
+
+      list.value = list.value.filter(t => t.id !== task.id);
+    } catch (error) {
+      console.error("Delete error:", error);
+    }
+  }
+};
+
+const handleEditTask = (task: Task) => {
+  selectedTask.value = task;
+  showModal.value = true;
 };
 
 definePageMeta({
@@ -100,26 +116,44 @@ definePageMeta({
   layout: 'default',
 });
 
-onMounted(async () => {
-  await fetchAllTasks();
-});
+onMounted(fetchAllTasks);
 </script>
 
 <template>
   <div class="container-fluid">
-    <div class="" style="margin-bottom: 20px;">
-      <CreateTask @task-created="handleTaskCreated"></CreateTask>
+    <div class="mb-4">
+      <button @click="openCreateTaskModal"
+        class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+        + New Task
+      </button>
+      <CreateTask 
+        v-if="showModal"
+        :task="selectedTask" 
+        @task-created="handleTaskCreated" 
+        @task-updated="fetchAllTasks"
+        @close="showModal = false"
+      />
     </div>
 
     <div class="row">
-      <div class="column-wrapper">
+      <div v-for="(tasks, status) in {
+        Todo: todo,
+        'In Progress': inProgress,
+        QA: qa,
+        Done: done
+      }" :key="status" class="column-wrapper">
         <div class="column p-3">
-          <h5>Todo</h5>
-          <draggable v-model="todo" group="people" @change="(e) => onTaskDrop(e, TaskStatus.TODO)" @start="drag=true" @end="drag=false">
+          <h5>{{ status }}</h5>
+          <draggable
+            :list="tasks"
+            group="people"
+            @change="(e) => onTaskDrop(e, TaskStatus[status.replace(' ', '_').toUpperCase()])"
+          >
             <template #item="{ element }">
+              <div class="relative">
                 <a
                   href="#"
-                  class="block max-w-sm p-4 mb-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
+                  class="block max-w-sm p-4 pb-10 mb-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
                 >
                   <h5 class="mb-2 text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
                     {{ element.title }}
@@ -128,69 +162,19 @@ onMounted(async () => {
                     {{ element.description }}
                   </p>
                 </a>
-            </template>
-          </draggable>
-        </div>
-      </div>
 
-      <div class="column-wrapper">
-        <div class="column p-3">
-          <h5>In Progress</h5>
-          <draggable v-model="inProgress" @change="(e) => onTaskDrop(e, TaskStatus.IN_PROGRESS)" group="people" @start="drag=true" @end="drag=false">
-            <template #item="{ element }">
-                <a
-                  href="#"
-                  class="block max-w-sm p-4 mb-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
-                >
-                  <h5 class="mb-2 text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
-                    {{ element.title }}
-                  </h5>
-                  <p class="text-sm text-gray-700 dark:text-gray-400">
-                    {{ element.description }}
-                  </p>
-                </a>
-            </template>
-          </draggable>
-        </div>
-      </div>
+                <div class="absolute bottom-2 left-3 right-2 flex justify-between">
+                  <button @click="deleteTask(element)" 
+                    class="h-[24px] min-w-[100px] text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-xs px-2 py-1 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                    Delete
+                  </button>
 
-      <div class="column-wrapper">
-        <div class="column p-3">
-          <h5>QA</h5>
-          <draggable v-model="qa" group="people" @change="(e) => onTaskDrop(e, TaskStatus.QA)" @start="drag=true" @end="drag=false">
-            <template #item="{ element }">
-                <a
-                  href="#"
-                  class="block max-w-sm p-4 mb-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
-                >
-                  <h5 class="mb-2 text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
-                    {{ element.title }}
-                  </h5>
-                  <p class="text-sm text-gray-700 dark:text-gray-400">
-                    {{ element.description }}
-                  </p>
-                </a>
-            </template>
-          </draggable>
-        </div>
-      </div>
-
-      <div class="column-wrapper">
-        <div class="column p-3">
-          <h5>Done</h5>
-          <draggable v-model="done" group="people" @change="(e) => onTaskDrop(e, TaskStatus.DONE)" @start="drag=true" @end="drag=false">
-            <template #item="{ element }">
-                <a
-                  href="#"
-                  class="block max-w-sm p-4 mb-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
-                >
-                  <h5 class="mb-2 text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
-                    {{ element.title }}
-                  </h5>
-                  <p class="text-sm text-gray-700 dark:text-gray-400">
-                    {{ element.description }}
-                  </p>
-                </a>
+                  <button @click="handleEditTask(element)"
+                    class="ml-2 h-[24px] min-w-[100px] text-white bg-yellow-500 hover:bg-yellow-600 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-xs px-2 py-1 text-center dark:bg-yellow-500 dark:hover:bg-yellow-600 dark:focus:ring-yellow-800">
+                    Edit
+                  </button>
+                </div>
+              </div>
             </template>
           </draggable>
         </div>
@@ -200,52 +184,31 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.draggable-container {
-  min-height: 300px;
+.container-fluid {
+  height: 100vh;
 }
 
-.card {
-  cursor: grab;
+.row {
+  display: flex;
+  justify-content: space-between;
+  height: 100%;
 }
 
-.card-body {
-  padding: 0.75rem;
-}
-
-.card.mb-2 {
-  margin-bottom: 1rem;
+.column-wrapper {
+  flex: 0 0 25%;
 }
 
 .column {
   display: flex;
   flex-direction: column;
-  height: 100%; /* Ensure it takes full vertical space */
+  height: 100%;
   border: 1px solid #ddd;
   border-radius: 8px;
   background-color: #f8f9fa;
-  padding: 15px;
 }
 
 .column h5 {
   font-weight: bold;
   margin-bottom: 20px;
-}
-
-.column .card {
-  margin-bottom: 10px;
-}
-
-.container-fluid {
-  height: 100vh; /* Set container to full height of the viewport */
-}
-
-.row {
-  display: flex; /* Enable Flexbox */
-  justify-content: space-between; /* Space columns evenly */
-  height: 100%; /* Ensure the row takes full height */
-}
-
-.column-wrapper {
-  flex: 0 0 25%; /* Ensure each column takes up 25% of the width */
 }
 </style>
