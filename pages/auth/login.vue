@@ -2,8 +2,8 @@
 import { ref } from 'vue';
 const authStore = useAuthStore();
 
-const email = ref('tom@cruise.com');
-const password = ref('password01');
+const email = ref('');
+const password = ref('');
 const errorMessage = ref('');
 const successMessage = ref('');
 const isLoading = ref(false);

@@ -64,7 +64,7 @@ const handleCreateNewUser = async(e: Event) => {
     >
       <form @submit.prevent="handleCreateNewUser">
         <h5 class="text-xl font-medium text-gray-900 dark:text-white mb-3 text-center">
-          Sign Up to Shift
+          Sign Up to Shift Board
         </h5>
 
         <div v-if="errorMessage" class="text-red-500 text-sm mb-4">
@@ -91,7 +91,7 @@ const handleCreateNewUser = async(e: Event) => {
             id="name"
             v-model="name"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-            placeholder="name@company.com"
+            placeholder="John doe"
             required
           />
         </div>
@@ -138,7 +138,7 @@ const handleCreateNewUser = async(e: Event) => {
         </button>
         <div class="text-sm font-medium text-gray-500 dark:text-gray-300">
           Have already an account?
-          <nuxt-link to="/auth/login" class="text-blue-700 hover:underline dark:text-blue-500">Register</nuxt-link>
+          <nuxt-link to="/auth/login" class="text-blue-700 hover:underline dark:text-blue-500">Sign In</nuxt-link>
         </div>
       </form>
     </div>
