@@ -40,22 +40,22 @@ export const useAuthStore = defineStore("auth", {
     async logout() {
       const { $api } = useNuxtApp();
       try {
-        await $api.post("/auth/logout");
+        await $api?.post?.("/auth/logout");
       } catch (error: any) {
-        const message = "Logout failed"
-        throw new Error(message);
-      }finally{
+        console.error("Logout error:", error);
+        throw new Error("Logout failed");
+      } finally {
         this.$reset();
         localStorage.removeItem("auth");
-        delete $api.defaults.headers.common["Authorization"];
+    
+        if ($api?.defaults?.headers?.common) {
+          delete $api.defaults.headers.common["Authorization"];
+        }
+    
         navigateTo("/auth/login");
       }
-
-      this.$reset();
-      localStorage.clear();
-      delete $api.defaults.headers.common["Authorization"];
-      navigateTo("/auth/login");
-    },
+    }
+    
   },
   getters: {
     isAuthenticated: (state) => {

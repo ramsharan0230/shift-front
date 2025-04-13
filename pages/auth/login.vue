@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 const authStore = useAuthStore();
 
-const email = ref('rahul@manandhar.com');
+const email = ref('tom@cruise.com');
 const password = ref('password01');
 const errorMessage = ref('');
 const successMessage = ref('');

@@ -6,6 +6,7 @@ const logout = async () => {
   try {
     await authStore.logout();
     navigateTo('/auth/login')
+    console.log("log out here");
   } catch (error) {
     console.error("Logout failed:", error);
   }

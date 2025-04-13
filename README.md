@@ -1,8 +1,6 @@
 # Shift Board Frontend
 
-This is the frontend application for **Shift Board**, developed using **Nuxt 3** with **TypeScript**. For the UI, **Tailwind CSS** is used to ensure a responsive and clean design.
-
-Check out the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+This is the frontend application for **Shift Board**, developed using **Nuxt 3** with **TypeScript**. For the UI, **Tailwind CSS** is used to ensure a responsive and clean design. This is the application where authenticated user can create new task and move it to different categories like todo, inProgress, QA and Done. 
 
 ---
 
