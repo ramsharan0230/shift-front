@@ -25,8 +25,8 @@ const handleLogin = async (e: Event) => {
     successMessage.value = response.message;
     navigateTo("/board"); 
     clearMessages();
-  } catch (error) {
-    errorMessage.value = 'Something went wrong. Please try again.';
+  } catch (error: any) {
+    errorMessage.value = error?error:"Please check your email or password and enter it again";
     clearMessages();
   } finally {
     isLoading.value = false;

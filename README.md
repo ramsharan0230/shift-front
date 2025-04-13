@@ -1,8 +1,46 @@
-# Nuxt Minimal Starter
+# Shift Board Frontend
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+This is the frontend application for **Shift Board**, developed using **Nuxt 3** with **TypeScript**. For the UI, **Tailwind CSS** is used to ensure a responsive and clean design.
 
-## Setup
+Check out the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+
+---
+
+## 🔧 Tech Stack
+
+- **Nuxt 3**
+- **TypeScript**
+- **Tailwind CSS**
+- **VueDraggable** (for drag and drop functionality)
+- **Pinia** (state management)
+- **Nuxt Middleware** (for route protection)
+
+---
+
+## 🚀 Features
+
+1. **Authentication**  
+   - Login: `http://localhost:3000/auth/login`  
+   - Register: `http://localhost:3000/auth/register`  
+
+2. **Protected Board Page**  
+   After registering or logging in, users can access the board at:  
+   `http://localhost:3000/board`  
+   > ⚠️ This page is protected by an `auth` middleware.
+
+3. **Task Management**  
+   On the board page, authenticated users can:
+   - Create new tasks
+   - Assign tasks to different stages: `To Do`, `In Progress`, `QA`, or `Done`
+   - Use **drag and drop** (powered by `vuedraggable`) to move tasks across stages
+
+4. **Backend API**  
+   The frontend communicates with a backend running at:  
+   `http://localhost:8000`
+
+---
+
+## 📦 Setup
 
 Make sure to install dependencies:
 
@@ -18,58 +56,3 @@ yarn install
 
 # bun
 bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.

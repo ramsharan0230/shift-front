@@ -27,8 +27,13 @@ export const useAuthStore = defineStore("auth", {
 
         return response.data;
       } catch (error: any) {
-        const message = error.response?.data?.message || "Login failed";
-        throw new Error(message);
+        if(error.response.data?.data?.email){
+          throw error.response.data?.data?.email[0]
+        }
+        if(error.response.data?.data?.password){
+          throw error.response.data?.data?.password[0]
+        }
+        throw error.response?.data; 
       }
     },
 
