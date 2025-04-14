@@ -117,6 +117,9 @@ definePageMeta({
 });
 
 onMounted(fetchAllTasks);
+useHead({
+  title: 'Board | Shift Board'
+});
 </script>
 
 <template>

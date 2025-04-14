@@ -39,6 +39,9 @@ onMounted(() => {
 definePageMeta({
   middleware: 'guest',
 });
+useHead({
+  title: 'Login | Shift Board'
+});
 </script>
 
 <template>

@@ -57,6 +57,9 @@ const handleCreateNewUser = async(e: Event) => {
 definePageMeta({
   middleware: 'guest',
 });
+useHead({
+  title: 'Register | Shift Board'
+});
 
 </script>
 
