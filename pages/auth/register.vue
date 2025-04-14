@@ -54,7 +54,9 @@ const handleCreateNewUser = async(e: Event) => {
         isLoading.value = false;
     }
 }
-
+definePageMeta({
+  middleware: 'guest',
+});
 
 </script>
 
